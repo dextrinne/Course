@@ -1,0 +1,7 @@
+D:\code\DataTypes2\bin\Debug\DataTypes2.exe.config
+D:\code\DataTypes2\bin\Debug\DataTypes2.exe
+D:\code\DataTypes2\bin\Debug\DataTypes2.pdb
+D:\code\DataTypes2\obj\Debug\DataTypes2.csproj.AssemblyReference.cache
+D:\code\DataTypes2\obj\Debug\DataTypes2.csproj.CoreCompileInputs.cache
+D:\code\DataTypes2\obj\Debug\DataTypes2.exe
+D:\code\DataTypes2\obj\Debug\DataTypes2.pdb
