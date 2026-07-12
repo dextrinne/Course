@@ -1,7 +1,0 @@
-D:\code\DataTypes1\bin\Debug\DataTypes1.exe.config
-D:\code\DataTypes1\bin\Debug\DataTypes1.exe
-D:\code\DataTypes1\bin\Debug\DataTypes1.pdb
-D:\code\DataTypes1\obj\Debug\DataTypes1.csproj.AssemblyReference.cache
-D:\code\DataTypes1\obj\Debug\DataTypes1.csproj.CoreCompileInputs.cache
-D:\code\DataTypes1\obj\Debug\DataTypes1.exe
-D:\code\DataTypes1\obj\Debug\DataTypes1.pdb
