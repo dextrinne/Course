@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="CompoundInterest/CompoundInterest.csproj" Id="c6b0b645-e432-4acd-81e0-fd4e20816257" />
+  <Project Path="Database/Database.csproj" Id="230705ff-b321-4580-834c-8b5114fb22a6" />
+  <Project Path="Diamond/Diamond.csproj" Id="6e38f042-e391-47ce-bab1-52b8f12b63aa" />
+  <Project Path="Rectangle/Rectangle.csproj" Id="626496e5-80a4-4943-b7b8-ddf868c908f7" />
+  <Project Path="SmartStack/SmartStack.csproj" Id="57335c1f-6d90-44d0-b961-e7e6a236fbeb" />
+</Solution>
