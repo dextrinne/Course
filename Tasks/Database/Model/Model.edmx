@@ -1,0 +1,928 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="Хранилище DB_tryModel" Provider="System.Data.SqlClient" ProviderManifestToken="2008" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="classrooms">
+          <Key>
+            <PropertyRef Name="classroom_id" />
+          </Key>
+          <Property Name="classroom_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="name" Type="varchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <EntityType Name="descriptions">
+          <Key>
+            <PropertyRef Name="description_id" />
+          </Key>
+          <Property Name="description_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="name" Type="varchar" MaxLength="25" Nullable="false" />
+        </EntityType>
+        <EntityType Name="directions">
+          <Key>
+            <PropertyRef Name="direction_id" />
+          </Key>
+          <Property Name="direction_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="faculty_id" Type="int" Nullable="false" />
+          <Property Name="name" Type="varchar" MaxLength="255" Nullable="false" />
+        </EntityType>
+        <EntityType Name="faculty">
+          <Key>
+            <PropertyRef Name="faculty_id" />
+          </Key>
+          <Property Name="faculty_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="name" Type="varchar" MaxLength="255" Nullable="false" />
+        </EntityType>
+        <EntityType Name="groups">
+          <Key>
+            <PropertyRef Name="group_id" />
+          </Key>
+          <Property Name="group_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="direction_id" Type="int" Nullable="false" />
+          <Property Name="name" Type="varchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <EntityType Name="journal">
+          <Key>
+            <PropertyRef Name="journal_id" />
+          </Key>
+          <Property Name="journal_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="schedule_id" Type="int" Nullable="false" />
+          <Property Name="student_id" Type="int" Nullable="false" />
+          <Property Name="lesson_date" Type="date" Nullable="false" />
+          <Property Name="grade" Type="int" />
+          <Property Name="attendance" Type="varchar" MaxLength="15" Nullable="false" />
+        </EntityType>
+        <EntityType Name="lesson_times">
+          <Key>
+            <PropertyRef Name="time_slot_id" />
+          </Key>
+          <Property Name="time_slot_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="lesson_number" Type="int" Nullable="false" />
+          <Property Name="time_start" Type="time" Precision="7" Nullable="false" />
+          <Property Name="time_end" Type="time" Precision="7" Nullable="false" />
+        </EntityType>
+        <EntityType Name="news">
+          <Key>
+            <PropertyRef Name="news_id" />
+          </Key>
+          <Property Name="news_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="user_id" Type="int" Nullable="false" />
+          <Property Name="news_title" Type="varchar" MaxLength="255" Nullable="false" />
+          <Property Name="news_text" Type="nvarchar(max)" />
+          <Property Name="publication_date" Type="datetime2" Precision="7" Nullable="false" />
+        </EntityType>
+        <EntityType Name="roles">
+          <Key>
+            <PropertyRef Name="role_id" />
+          </Key>
+          <Property Name="role_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="name" Type="varchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <EntityType Name="schedule">
+          <Key>
+            <PropertyRef Name="schedule_id" />
+          </Key>
+          <Property Name="schedule_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="group_id" Type="int" Nullable="false" />
+          <Property Name="subject_id" Type="int" Nullable="false" />
+          <Property Name="teacher_id" Type="int" Nullable="false" />
+          <Property Name="classroom_id" Type="int" Nullable="false" />
+          <Property Name="day_of_week" Type="varchar" MaxLength="15" Nullable="false" />
+          <Property Name="time_slot_id" Type="int" Nullable="false" />
+          <Property Name="week_type" Type="varchar" MaxLength="10" Nullable="false" />
+          <Property Name="description_id" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="student_groups">
+          <Key>
+            <PropertyRef Name="student_id" />
+          </Key>
+          <Property Name="student_id" Type="int" Nullable="false" />
+          <Property Name="group_id" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="subjects">
+          <Key>
+            <PropertyRef Name="subject_id" />
+          </Key>
+          <Property Name="subject_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="name" Type="varchar" MaxLength="255" Nullable="false" />
+        </EntityType>
+        <EntityType Name="teacher_subjects">
+          <Key>
+            <PropertyRef Name="teacher_id" />
+            <PropertyRef Name="subject_id" />
+          </Key>
+          <Property Name="teacher_id" Type="int" Nullable="false" />
+          <Property Name="subject_id" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="users">
+          <Key>
+            <PropertyRef Name="user_id" />
+          </Key>
+          <Property Name="user_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="fio" Type="varchar" MaxLength="255" Nullable="false" />
+          <Property Name="role_id" Type="int" Nullable="false" />
+          <Property Name="login" Type="varchar" MaxLength="255" Nullable="false" />
+          <Property Name="password" Type="varchar" MaxLength="255" Nullable="false" />
+          <Property Name="email" Type="varchar" MaxLength="255" />
+          <Property Name="phone" Type="varchar" MaxLength="20" />
+        </EntityType>
+        <Association Name="FK__direction__facul__5070F446">
+          <End Role="faculty" Type="Self.faculty" Multiplicity="1" />
+          <End Role="directions" Type="Self.directions" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="faculty">
+              <PropertyRef Name="faculty_id" />
+            </Principal>
+            <Dependent Role="directions">
+              <PropertyRef Name="faculty_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__groups__directio__534D60F1">
+          <End Role="directions" Type="Self.directions" Multiplicity="1" />
+          <End Role="groups" Type="Self.groups" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="directions">
+              <PropertyRef Name="direction_id" />
+            </Principal>
+            <Dependent Role="groups">
+              <PropertyRef Name="direction_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__journal__schedul__7E37BEF6">
+          <End Role="schedule" Type="Self.schedule" Multiplicity="1" />
+          <End Role="journal" Type="Self.journal" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="schedule">
+              <PropertyRef Name="schedule_id" />
+            </Principal>
+            <Dependent Role="journal">
+              <PropertyRef Name="schedule_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__journal__student__7F2BE32F">
+          <End Role="users" Type="Self.users" Multiplicity="1" />
+          <End Role="journal" Type="Self.journal" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="users">
+              <PropertyRef Name="user_id" />
+            </Principal>
+            <Dependent Role="journal">
+              <PropertyRef Name="student_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__news__user_id__5EBF139D">
+          <End Role="users" Type="Self.users" Multiplicity="1" />
+          <End Role="news" Type="Self.news" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="users">
+              <PropertyRef Name="user_id" />
+            </Principal>
+            <Dependent Role="news">
+              <PropertyRef Name="user_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__schedule__classr__75A278F5">
+          <End Role="classrooms" Type="Self.classrooms" Multiplicity="1" />
+          <End Role="schedule" Type="Self.schedule" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="classrooms">
+              <PropertyRef Name="classroom_id" />
+            </Principal>
+            <Dependent Role="schedule">
+              <PropertyRef Name="classroom_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__schedule__descri__778AC167">
+          <End Role="descriptions" Type="Self.descriptions" Multiplicity="1" />
+          <End Role="schedule" Type="Self.schedule" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="descriptions">
+              <PropertyRef Name="description_id" />
+            </Principal>
+            <Dependent Role="schedule">
+              <PropertyRef Name="description_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__schedule__group___72C60C4A">
+          <End Role="groups" Type="Self.groups" Multiplicity="1" />
+          <End Role="schedule" Type="Self.schedule" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="groups">
+              <PropertyRef Name="group_id" />
+            </Principal>
+            <Dependent Role="schedule">
+              <PropertyRef Name="group_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__schedule__subjec__73BA3083">
+          <End Role="subjects" Type="Self.subjects" Multiplicity="1" />
+          <End Role="schedule" Type="Self.schedule" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="subjects">
+              <PropertyRef Name="subject_id" />
+            </Principal>
+            <Dependent Role="schedule">
+              <PropertyRef Name="subject_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__schedule__teache__74AE54BC">
+          <End Role="users" Type="Self.users" Multiplicity="1" />
+          <End Role="schedule" Type="Self.schedule" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="users">
+              <PropertyRef Name="user_id" />
+            </Principal>
+            <Dependent Role="schedule">
+              <PropertyRef Name="teacher_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__schedule__time_s__76969D2E">
+          <End Role="lesson_times" Type="Self.lesson_times" Multiplicity="1" />
+          <End Role="schedule" Type="Self.schedule" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="lesson_times">
+              <PropertyRef Name="time_slot_id" />
+            </Principal>
+            <Dependent Role="schedule">
+              <PropertyRef Name="time_slot_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__student_g__group__5AEE82B9">
+          <End Role="groups" Type="Self.groups" Multiplicity="1" />
+          <End Role="student_groups" Type="Self.student_groups" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="groups">
+              <PropertyRef Name="group_id" />
+            </Principal>
+            <Dependent Role="student_groups">
+              <PropertyRef Name="group_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__student_g__stude__59FA5E80">
+          <End Role="users" Type="Self.users" Multiplicity="1" />
+          <End Role="student_groups" Type="Self.student_groups" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="users">
+              <PropertyRef Name="user_id" />
+            </Principal>
+            <Dependent Role="student_groups">
+              <PropertyRef Name="student_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__teacher_s__subje__68487DD7">
+          <End Role="subjects" Type="Self.subjects" Multiplicity="1" />
+          <End Role="teacher_subjects" Type="Self.teacher_subjects" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="subjects">
+              <PropertyRef Name="subject_id" />
+            </Principal>
+            <Dependent Role="teacher_subjects">
+              <PropertyRef Name="subject_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__teacher_s__teach__6754599E">
+          <End Role="users" Type="Self.users" Multiplicity="1" />
+          <End Role="teacher_subjects" Type="Self.teacher_subjects" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="users">
+              <PropertyRef Name="user_id" />
+            </Principal>
+            <Dependent Role="teacher_subjects">
+              <PropertyRef Name="teacher_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__users__role_id__571DF1D5">
+          <End Role="roles" Type="Self.roles" Multiplicity="1" />
+          <End Role="users" Type="Self.users" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="roles">
+              <PropertyRef Name="role_id" />
+            </Principal>
+            <Dependent Role="users">
+              <PropertyRef Name="role_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="Хранилище DB_tryModelContainer">
+          <EntitySet Name="classrooms" EntityType="Self.classrooms" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="descriptions" EntityType="Self.descriptions" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="directions" EntityType="Self.directions" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="faculty" EntityType="Self.faculty" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="groups" EntityType="Self.groups" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="journal" EntityType="Self.journal" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="lesson_times" EntityType="Self.lesson_times" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="news" EntityType="Self.news" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="roles" EntityType="Self.roles" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="schedule" EntityType="Self.schedule" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="student_groups" EntityType="Self.student_groups" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="subjects" EntityType="Self.subjects" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="teacher_subjects" EntityType="Self.teacher_subjects" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="users" EntityType="Self.users" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK__direction__facul__5070F446" Association="Self.FK__direction__facul__5070F446">
+            <End Role="faculty" EntitySet="faculty" />
+            <End Role="directions" EntitySet="directions" />
+          </AssociationSet>
+          <AssociationSet Name="FK__groups__directio__534D60F1" Association="Self.FK__groups__directio__534D60F1">
+            <End Role="directions" EntitySet="directions" />
+            <End Role="groups" EntitySet="groups" />
+          </AssociationSet>
+          <AssociationSet Name="FK__journal__schedul__7E37BEF6" Association="Self.FK__journal__schedul__7E37BEF6">
+            <End Role="schedule" EntitySet="schedule" />
+            <End Role="journal" EntitySet="journal" />
+          </AssociationSet>
+          <AssociationSet Name="FK__journal__student__7F2BE32F" Association="Self.FK__journal__student__7F2BE32F">
+            <End Role="users" EntitySet="users" />
+            <End Role="journal" EntitySet="journal" />
+          </AssociationSet>
+          <AssociationSet Name="FK__news__user_id__5EBF139D" Association="Self.FK__news__user_id__5EBF139D">
+            <End Role="users" EntitySet="users" />
+            <End Role="news" EntitySet="news" />
+          </AssociationSet>
+          <AssociationSet Name="FK__schedule__classr__75A278F5" Association="Self.FK__schedule__classr__75A278F5">
+            <End Role="classrooms" EntitySet="classrooms" />
+            <End Role="schedule" EntitySet="schedule" />
+          </AssociationSet>
+          <AssociationSet Name="FK__schedule__descri__778AC167" Association="Self.FK__schedule__descri__778AC167">
+            <End Role="descriptions" EntitySet="descriptions" />
+            <End Role="schedule" EntitySet="schedule" />
+          </AssociationSet>
+          <AssociationSet Name="FK__schedule__group___72C60C4A" Association="Self.FK__schedule__group___72C60C4A">
+            <End Role="groups" EntitySet="groups" />
+            <End Role="schedule" EntitySet="schedule" />
+          </AssociationSet>
+          <AssociationSet Name="FK__schedule__subjec__73BA3083" Association="Self.FK__schedule__subjec__73BA3083">
+            <End Role="subjects" EntitySet="subjects" />
+            <End Role="schedule" EntitySet="schedule" />
+          </AssociationSet>
+          <AssociationSet Name="FK__schedule__teache__74AE54BC" Association="Self.FK__schedule__teache__74AE54BC">
+            <End Role="users" EntitySet="users" />
+            <End Role="schedule" EntitySet="schedule" />
+          </AssociationSet>
+          <AssociationSet Name="FK__schedule__time_s__76969D2E" Association="Self.FK__schedule__time_s__76969D2E">
+            <End Role="lesson_times" EntitySet="lesson_times" />
+            <End Role="schedule" EntitySet="schedule" />
+          </AssociationSet>
+          <AssociationSet Name="FK__student_g__group__5AEE82B9" Association="Self.FK__student_g__group__5AEE82B9">
+            <End Role="groups" EntitySet="groups" />
+            <End Role="student_groups" EntitySet="student_groups" />
+          </AssociationSet>
+          <AssociationSet Name="FK__student_g__stude__59FA5E80" Association="Self.FK__student_g__stude__59FA5E80">
+            <End Role="users" EntitySet="users" />
+            <End Role="student_groups" EntitySet="student_groups" />
+          </AssociationSet>
+          <AssociationSet Name="FK__teacher_s__subje__68487DD7" Association="Self.FK__teacher_s__subje__68487DD7">
+            <End Role="subjects" EntitySet="subjects" />
+            <End Role="teacher_subjects" EntitySet="teacher_subjects" />
+          </AssociationSet>
+          <AssociationSet Name="FK__teacher_s__teach__6754599E" Association="Self.FK__teacher_s__teach__6754599E">
+            <End Role="users" EntitySet="users" />
+            <End Role="teacher_subjects" EntitySet="teacher_subjects" />
+          </AssociationSet>
+          <AssociationSet Name="FK__users__role_id__571DF1D5" Association="Self.FK__users__role_id__571DF1D5">
+            <End Role="roles" EntitySet="roles" />
+            <End Role="users" EntitySet="users" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="DB_tryModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="classrooms">
+          <Key>
+            <PropertyRef Name="classroom_id" />
+          </Key>
+          <Property Name="classroom_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="name" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <NavigationProperty Name="schedule" Relationship="Self.FK__schedule__classr__75A278F5" FromRole="classrooms" ToRole="schedule" />
+        </EntityType>
+        <EntityType Name="descriptions">
+          <Key>
+            <PropertyRef Name="description_id" />
+          </Key>
+          <Property Name="description_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="name" Type="String" MaxLength="25" FixedLength="false" Unicode="false" Nullable="false" />
+          <NavigationProperty Name="schedule" Relationship="Self.FK__schedule__descri__778AC167" FromRole="descriptions" ToRole="schedule" />
+        </EntityType>
+        <EntityType Name="directions">
+          <Key>
+            <PropertyRef Name="direction_id" />
+          </Key>
+          <Property Name="direction_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="faculty_id" Type="Int32" Nullable="false" />
+          <Property Name="name" Type="String" MaxLength="255" FixedLength="false" Unicode="false" Nullable="false" />
+          <NavigationProperty Name="faculty" Relationship="Self.FK__direction__facul__5070F446" FromRole="directions" ToRole="faculty" />
+          <NavigationProperty Name="groups" Relationship="Self.FK__groups__directio__534D60F1" FromRole="directions" ToRole="groups" />
+        </EntityType>
+        <EntityType Name="faculty">
+          <Key>
+            <PropertyRef Name="faculty_id" />
+          </Key>
+          <Property Name="faculty_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="name" Type="String" MaxLength="255" FixedLength="false" Unicode="false" Nullable="false" />
+          <NavigationProperty Name="directions" Relationship="Self.FK__direction__facul__5070F446" FromRole="faculty" ToRole="directions" />
+        </EntityType>
+        <EntityType Name="groups">
+          <Key>
+            <PropertyRef Name="group_id" />
+          </Key>
+          <Property Name="group_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="direction_id" Type="Int32" Nullable="false" />
+          <Property Name="name" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <NavigationProperty Name="directions" Relationship="Self.FK__groups__directio__534D60F1" FromRole="groups" ToRole="directions" />
+          <NavigationProperty Name="schedule" Relationship="Self.FK__schedule__group___72C60C4A" FromRole="groups" ToRole="schedule" />
+          <NavigationProperty Name="users" Relationship="Self.student_groups" FromRole="groups" ToRole="users" />
+        </EntityType>
+        <EntityType Name="journal">
+          <Key>
+            <PropertyRef Name="journal_id" />
+          </Key>
+          <Property Name="journal_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="schedule_id" Type="Int32" Nullable="false" />
+          <Property Name="student_id" Type="Int32" Nullable="false" />
+          <Property Name="lesson_date" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="grade" Type="Int32" />
+          <Property Name="attendance" Type="String" MaxLength="15" FixedLength="false" Unicode="false" Nullable="false" />
+          <NavigationProperty Name="schedule" Relationship="Self.FK__journal__schedul__7E37BEF6" FromRole="journal" ToRole="schedule" />
+          <NavigationProperty Name="users" Relationship="Self.FK__journal__student__7F2BE32F" FromRole="journal" ToRole="users" />
+        </EntityType>
+        <EntityType Name="lesson_times">
+          <Key>
+            <PropertyRef Name="time_slot_id" />
+          </Key>
+          <Property Name="time_slot_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="lesson_number" Type="Int32" Nullable="false" />
+          <Property Name="time_start" Type="Time" Nullable="false" Precision="7" />
+          <Property Name="time_end" Type="Time" Nullable="false" Precision="7" />
+          <NavigationProperty Name="schedule" Relationship="Self.FK__schedule__time_s__76969D2E" FromRole="lesson_times" ToRole="schedule" />
+        </EntityType>
+        <EntityType Name="news">
+          <Key>
+            <PropertyRef Name="news_id" />
+          </Key>
+          <Property Name="news_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="user_id" Type="Int32" Nullable="false" />
+          <Property Name="news_title" Type="String" MaxLength="255" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="news_text" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="publication_date" Type="DateTime" Nullable="false" Precision="7" />
+          <NavigationProperty Name="users" Relationship="Self.FK__news__user_id__5EBF139D" FromRole="news" ToRole="users" />
+        </EntityType>
+        <EntityType Name="roles">
+          <Key>
+            <PropertyRef Name="role_id" />
+          </Key>
+          <Property Name="role_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="name" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <NavigationProperty Name="users" Relationship="Self.FK__users__role_id__571DF1D5" FromRole="roles" ToRole="users" />
+        </EntityType>
+        <EntityType Name="schedule">
+          <Key>
+            <PropertyRef Name="schedule_id" />
+          </Key>
+          <Property Name="schedule_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="group_id" Type="Int32" Nullable="false" />
+          <Property Name="subject_id" Type="Int32" Nullable="false" />
+          <Property Name="teacher_id" Type="Int32" Nullable="false" />
+          <Property Name="classroom_id" Type="Int32" Nullable="false" />
+          <Property Name="day_of_week" Type="String" MaxLength="15" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="time_slot_id" Type="Int32" Nullable="false" />
+          <Property Name="week_type" Type="String" MaxLength="10" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="description_id" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="classrooms" Relationship="Self.FK__schedule__classr__75A278F5" FromRole="schedule" ToRole="classrooms" />
+          <NavigationProperty Name="descriptions" Relationship="Self.FK__schedule__descri__778AC167" FromRole="schedule" ToRole="descriptions" />
+          <NavigationProperty Name="groups" Relationship="Self.FK__schedule__group___72C60C4A" FromRole="schedule" ToRole="groups" />
+          <NavigationProperty Name="journal" Relationship="Self.FK__journal__schedul__7E37BEF6" FromRole="schedule" ToRole="journal" />
+          <NavigationProperty Name="lesson_times" Relationship="Self.FK__schedule__time_s__76969D2E" FromRole="schedule" ToRole="lesson_times" />
+          <NavigationProperty Name="subjects" Relationship="Self.FK__schedule__subjec__73BA3083" FromRole="schedule" ToRole="subjects" />
+          <NavigationProperty Name="users" Relationship="Self.FK__schedule__teache__74AE54BC" FromRole="schedule" ToRole="users" />
+        </EntityType>
+        <EntityType Name="subjects">
+          <Key>
+            <PropertyRef Name="subject_id" />
+          </Key>
+          <Property Name="subject_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="name" Type="String" MaxLength="255" FixedLength="false" Unicode="false" Nullable="false" />
+          <NavigationProperty Name="schedule" Relationship="Self.FK__schedule__subjec__73BA3083" FromRole="subjects" ToRole="schedule" />
+          <NavigationProperty Name="users" Relationship="Self.teacher_subjects" FromRole="subjects" ToRole="users" />
+        </EntityType>
+        <EntityType Name="users">
+          <Key>
+            <PropertyRef Name="user_id" />
+          </Key>
+          <Property Name="user_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="fio" Type="String" MaxLength="255" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="role_id" Type="Int32" Nullable="false" />
+          <Property Name="login" Type="String" MaxLength="255" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="password" Type="String" MaxLength="255" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="email" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="phone" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="journal" Relationship="Self.FK__journal__student__7F2BE32F" FromRole="users" ToRole="journal" />
+          <NavigationProperty Name="news" Relationship="Self.FK__news__user_id__5EBF139D" FromRole="users" ToRole="news" />
+          <NavigationProperty Name="roles" Relationship="Self.FK__users__role_id__571DF1D5" FromRole="users" ToRole="roles" />
+          <NavigationProperty Name="schedule" Relationship="Self.FK__schedule__teache__74AE54BC" FromRole="users" ToRole="schedule" />
+          <NavigationProperty Name="groups" Relationship="Self.student_groups" FromRole="users" ToRole="groups" />
+          <NavigationProperty Name="subjects" Relationship="Self.teacher_subjects" FromRole="users" ToRole="subjects" />
+        </EntityType>
+        <Association Name="FK__schedule__classr__75A278F5">
+          <End Role="classrooms" Type="Self.classrooms" Multiplicity="1" />
+          <End Role="schedule" Type="Self.schedule" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="classrooms">
+              <PropertyRef Name="classroom_id" />
+            </Principal>
+            <Dependent Role="schedule">
+              <PropertyRef Name="classroom_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__schedule__descri__778AC167">
+          <End Role="descriptions" Type="Self.descriptions" Multiplicity="1" />
+          <End Role="schedule" Type="Self.schedule" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="descriptions">
+              <PropertyRef Name="description_id" />
+            </Principal>
+            <Dependent Role="schedule">
+              <PropertyRef Name="description_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__direction__facul__5070F446">
+          <End Role="faculty" Type="Self.faculty" Multiplicity="1" />
+          <End Role="directions" Type="Self.directions" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="faculty">
+              <PropertyRef Name="faculty_id" />
+            </Principal>
+            <Dependent Role="directions">
+              <PropertyRef Name="faculty_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__groups__directio__534D60F1">
+          <End Role="directions" Type="Self.directions" Multiplicity="1" />
+          <End Role="groups" Type="Self.groups" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="directions">
+              <PropertyRef Name="direction_id" />
+            </Principal>
+            <Dependent Role="groups">
+              <PropertyRef Name="direction_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__schedule__group___72C60C4A">
+          <End Role="groups" Type="Self.groups" Multiplicity="1" />
+          <End Role="schedule" Type="Self.schedule" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="groups">
+              <PropertyRef Name="group_id" />
+            </Principal>
+            <Dependent Role="schedule">
+              <PropertyRef Name="group_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__journal__schedul__7E37BEF6">
+          <End Role="schedule" Type="Self.schedule" Multiplicity="1" />
+          <End Role="journal" Type="Self.journal" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="schedule">
+              <PropertyRef Name="schedule_id" />
+            </Principal>
+            <Dependent Role="journal">
+              <PropertyRef Name="schedule_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__journal__student__7F2BE32F">
+          <End Role="users" Type="Self.users" Multiplicity="1" />
+          <End Role="journal" Type="Self.journal" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="users">
+              <PropertyRef Name="user_id" />
+            </Principal>
+            <Dependent Role="journal">
+              <PropertyRef Name="student_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__schedule__time_s__76969D2E">
+          <End Role="lesson_times" Type="Self.lesson_times" Multiplicity="1" />
+          <End Role="schedule" Type="Self.schedule" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="lesson_times">
+              <PropertyRef Name="time_slot_id" />
+            </Principal>
+            <Dependent Role="schedule">
+              <PropertyRef Name="time_slot_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__news__user_id__5EBF139D">
+          <End Role="users" Type="Self.users" Multiplicity="1" />
+          <End Role="news" Type="Self.news" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="users">
+              <PropertyRef Name="user_id" />
+            </Principal>
+            <Dependent Role="news">
+              <PropertyRef Name="user_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__users__role_id__571DF1D5">
+          <End Role="roles" Type="Self.roles" Multiplicity="1" />
+          <End Role="users" Type="Self.users" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="roles">
+              <PropertyRef Name="role_id" />
+            </Principal>
+            <Dependent Role="users">
+              <PropertyRef Name="role_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__schedule__subjec__73BA3083">
+          <End Role="subjects" Type="Self.subjects" Multiplicity="1" />
+          <End Role="schedule" Type="Self.schedule" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="subjects">
+              <PropertyRef Name="subject_id" />
+            </Principal>
+            <Dependent Role="schedule">
+              <PropertyRef Name="subject_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__schedule__teache__74AE54BC">
+          <End Role="users" Type="Self.users" Multiplicity="1" />
+          <End Role="schedule" Type="Self.schedule" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="users">
+              <PropertyRef Name="user_id" />
+            </Principal>
+            <Dependent Role="schedule">
+              <PropertyRef Name="teacher_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="student_groups">
+          <End Role="groups" Type="Self.groups" Multiplicity="0..1" />
+          <End Role="users" Type="Self.users" Multiplicity="*" />
+        </Association>
+        <Association Name="teacher_subjects">
+          <End Role="subjects" Type="Self.subjects" Multiplicity="*" />
+          <End Role="users" Type="Self.users" Multiplicity="*" />
+        </Association>
+        <EntityContainer Name="DB_tryEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="classrooms" EntityType="Self.classrooms" />
+          <EntitySet Name="descriptions" EntityType="Self.descriptions" />
+          <EntitySet Name="directions" EntityType="Self.directions" />
+          <EntitySet Name="faculty" EntityType="Self.faculty" />
+          <EntitySet Name="groups" EntityType="Self.groups" />
+          <EntitySet Name="journal" EntityType="Self.journal" />
+          <EntitySet Name="lesson_times" EntityType="Self.lesson_times" />
+          <EntitySet Name="news" EntityType="Self.news" />
+          <EntitySet Name="roles" EntityType="Self.roles" />
+          <EntitySet Name="schedule" EntityType="Self.schedule" />
+          <EntitySet Name="subjects" EntityType="Self.subjects" />
+          <EntitySet Name="users" EntityType="Self.users" />
+          <AssociationSet Name="FK__schedule__classr__75A278F5" Association="Self.FK__schedule__classr__75A278F5">
+            <End Role="classrooms" EntitySet="classrooms" />
+            <End Role="schedule" EntitySet="schedule" />
+          </AssociationSet>
+          <AssociationSet Name="FK__schedule__descri__778AC167" Association="Self.FK__schedule__descri__778AC167">
+            <End Role="descriptions" EntitySet="descriptions" />
+            <End Role="schedule" EntitySet="schedule" />
+          </AssociationSet>
+          <AssociationSet Name="FK__direction__facul__5070F446" Association="Self.FK__direction__facul__5070F446">
+            <End Role="faculty" EntitySet="faculty" />
+            <End Role="directions" EntitySet="directions" />
+          </AssociationSet>
+          <AssociationSet Name="FK__groups__directio__534D60F1" Association="Self.FK__groups__directio__534D60F1">
+            <End Role="directions" EntitySet="directions" />
+            <End Role="groups" EntitySet="groups" />
+          </AssociationSet>
+          <AssociationSet Name="FK__schedule__group___72C60C4A" Association="Self.FK__schedule__group___72C60C4A">
+            <End Role="groups" EntitySet="groups" />
+            <End Role="schedule" EntitySet="schedule" />
+          </AssociationSet>
+          <AssociationSet Name="FK__journal__schedul__7E37BEF6" Association="Self.FK__journal__schedul__7E37BEF6">
+            <End Role="schedule" EntitySet="schedule" />
+            <End Role="journal" EntitySet="journal" />
+          </AssociationSet>
+          <AssociationSet Name="FK__journal__student__7F2BE32F" Association="Self.FK__journal__student__7F2BE32F">
+            <End Role="users" EntitySet="users" />
+            <End Role="journal" EntitySet="journal" />
+          </AssociationSet>
+          <AssociationSet Name="FK__schedule__time_s__76969D2E" Association="Self.FK__schedule__time_s__76969D2E">
+            <End Role="lesson_times" EntitySet="lesson_times" />
+            <End Role="schedule" EntitySet="schedule" />
+          </AssociationSet>
+          <AssociationSet Name="FK__news__user_id__5EBF139D" Association="Self.FK__news__user_id__5EBF139D">
+            <End Role="users" EntitySet="users" />
+            <End Role="news" EntitySet="news" />
+          </AssociationSet>
+          <AssociationSet Name="FK__users__role_id__571DF1D5" Association="Self.FK__users__role_id__571DF1D5">
+            <End Role="roles" EntitySet="roles" />
+            <End Role="users" EntitySet="users" />
+          </AssociationSet>
+          <AssociationSet Name="FK__schedule__subjec__73BA3083" Association="Self.FK__schedule__subjec__73BA3083">
+            <End Role="subjects" EntitySet="subjects" />
+            <End Role="schedule" EntitySet="schedule" />
+          </AssociationSet>
+          <AssociationSet Name="FK__schedule__teache__74AE54BC" Association="Self.FK__schedule__teache__74AE54BC">
+            <End Role="users" EntitySet="users" />
+            <End Role="schedule" EntitySet="schedule" />
+          </AssociationSet>
+          <AssociationSet Name="student_groups" Association="Self.student_groups">
+            <End Role="groups" EntitySet="groups" />
+            <End Role="users" EntitySet="users" />
+          </AssociationSet>
+          <AssociationSet Name="teacher_subjects" Association="Self.teacher_subjects">
+            <End Role="subjects" EntitySet="subjects" />
+            <End Role="users" EntitySet="users" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="Хранилище DB_tryModelContainer" CdmEntityContainer="DB_tryEntities">
+          <EntitySetMapping Name="classrooms">
+            <EntityTypeMapping TypeName="DB_tryModel.classrooms">
+              <MappingFragment StoreEntitySet="classrooms">
+                <ScalarProperty Name="classroom_id" ColumnName="classroom_id" />
+                <ScalarProperty Name="name" ColumnName="name" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="descriptions">
+            <EntityTypeMapping TypeName="DB_tryModel.descriptions">
+              <MappingFragment StoreEntitySet="descriptions">
+                <ScalarProperty Name="description_id" ColumnName="description_id" />
+                <ScalarProperty Name="name" ColumnName="name" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="directions">
+            <EntityTypeMapping TypeName="DB_tryModel.directions">
+              <MappingFragment StoreEntitySet="directions">
+                <ScalarProperty Name="direction_id" ColumnName="direction_id" />
+                <ScalarProperty Name="faculty_id" ColumnName="faculty_id" />
+                <ScalarProperty Name="name" ColumnName="name" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="faculty">
+            <EntityTypeMapping TypeName="DB_tryModel.faculty">
+              <MappingFragment StoreEntitySet="faculty">
+                <ScalarProperty Name="faculty_id" ColumnName="faculty_id" />
+                <ScalarProperty Name="name" ColumnName="name" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="groups">
+            <EntityTypeMapping TypeName="DB_tryModel.groups">
+              <MappingFragment StoreEntitySet="groups">
+                <ScalarProperty Name="group_id" ColumnName="group_id" />
+                <ScalarProperty Name="direction_id" ColumnName="direction_id" />
+                <ScalarProperty Name="name" ColumnName="name" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="journal">
+            <EntityTypeMapping TypeName="DB_tryModel.journal">
+              <MappingFragment StoreEntitySet="journal">
+                <ScalarProperty Name="journal_id" ColumnName="journal_id" />
+                <ScalarProperty Name="schedule_id" ColumnName="schedule_id" />
+                <ScalarProperty Name="student_id" ColumnName="student_id" />
+                <ScalarProperty Name="lesson_date" ColumnName="lesson_date" />
+                <ScalarProperty Name="grade" ColumnName="grade" />
+                <ScalarProperty Name="attendance" ColumnName="attendance" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="lesson_times">
+            <EntityTypeMapping TypeName="DB_tryModel.lesson_times">
+              <MappingFragment StoreEntitySet="lesson_times">
+                <ScalarProperty Name="time_slot_id" ColumnName="time_slot_id" />
+                <ScalarProperty Name="lesson_number" ColumnName="lesson_number" />
+                <ScalarProperty Name="time_start" ColumnName="time_start" />
+                <ScalarProperty Name="time_end" ColumnName="time_end" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="news">
+            <EntityTypeMapping TypeName="DB_tryModel.news">
+              <MappingFragment StoreEntitySet="news">
+                <ScalarProperty Name="news_id" ColumnName="news_id" />
+                <ScalarProperty Name="user_id" ColumnName="user_id" />
+                <ScalarProperty Name="news_title" ColumnName="news_title" />
+                <ScalarProperty Name="news_text" ColumnName="news_text" />
+                <ScalarProperty Name="publication_date" ColumnName="publication_date" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="roles">
+            <EntityTypeMapping TypeName="DB_tryModel.roles">
+              <MappingFragment StoreEntitySet="roles">
+                <ScalarProperty Name="role_id" ColumnName="role_id" />
+                <ScalarProperty Name="name" ColumnName="name" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="schedule">
+            <EntityTypeMapping TypeName="DB_tryModel.schedule">
+              <MappingFragment StoreEntitySet="schedule">
+                <ScalarProperty Name="schedule_id" ColumnName="schedule_id" />
+                <ScalarProperty Name="group_id" ColumnName="group_id" />
+                <ScalarProperty Name="subject_id" ColumnName="subject_id" />
+                <ScalarProperty Name="teacher_id" ColumnName="teacher_id" />
+                <ScalarProperty Name="classroom_id" ColumnName="classroom_id" />
+                <ScalarProperty Name="day_of_week" ColumnName="day_of_week" />
+                <ScalarProperty Name="time_slot_id" ColumnName="time_slot_id" />
+                <ScalarProperty Name="week_type" ColumnName="week_type" />
+                <ScalarProperty Name="description_id" ColumnName="description_id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="subjects">
+            <EntityTypeMapping TypeName="DB_tryModel.subjects">
+              <MappingFragment StoreEntitySet="subjects">
+                <ScalarProperty Name="subject_id" ColumnName="subject_id" />
+                <ScalarProperty Name="name" ColumnName="name" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="users">
+            <EntityTypeMapping TypeName="DB_tryModel.users">
+              <MappingFragment StoreEntitySet="users">
+                <ScalarProperty Name="user_id" ColumnName="user_id" />
+                <ScalarProperty Name="fio" ColumnName="fio" />
+                <ScalarProperty Name="role_id" ColumnName="role_id" />
+                <ScalarProperty Name="login" ColumnName="login" />
+                <ScalarProperty Name="password" ColumnName="password" />
+                <ScalarProperty Name="email" ColumnName="email" />
+                <ScalarProperty Name="phone" ColumnName="phone" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <AssociationSetMapping Name="student_groups" TypeName="DB_tryModel.student_groups" StoreEntitySet="student_groups">
+            <EndProperty Name="groups">
+              <ScalarProperty Name="group_id" ColumnName="group_id" />
+            </EndProperty>
+            <EndProperty Name="users">
+              <ScalarProperty Name="user_id" ColumnName="student_id" />
+            </EndProperty>
+          </AssociationSetMapping>
+          <AssociationSetMapping Name="teacher_subjects" TypeName="DB_tryModel.teacher_subjects" StoreEntitySet="teacher_subjects">
+            <EndProperty Name="subjects">
+              <ScalarProperty Name="subject_id" ColumnName="subject_id" />
+            </EndProperty>
+            <EndProperty Name="users">
+              <ScalarProperty Name="user_id" ColumnName="teacher_id" />
+            </EndProperty>
+          </AssociationSetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="false" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="true" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="Нет" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

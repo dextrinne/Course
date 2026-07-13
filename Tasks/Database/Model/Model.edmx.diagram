@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="66503740ed1e45829655d28de7a3273b" Name="Diagram1">
+        <EntityTypeShape EntityType="DB_tryModel.classrooms" Width="1.5" PointX="0.75" PointY="7.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="DB_tryModel.descriptions" Width="1.5" PointX="0.75" PointY="10.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="DB_tryModel.directions" Width="1.5" PointX="1.5" PointY="15.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="DB_tryModel.faculty" Width="1.5" PointX="1.5" PointY="18.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="DB_tryModel.groups" Width="1.5" PointX="0.75" PointY="12.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="DB_tryModel.journal" Width="1.5" PointX="11.25" PointY="4.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="DB_tryModel.lesson_times" Width="1.5" PointX="0.75" PointY="21.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="DB_tryModel.news" Width="1.5" PointX="8.25" PointY="4.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="DB_tryModel.roles" Width="1.5" PointX="3.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DB_tryModel.schedule" Width="1.5" PointX="3" PointY="3.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="DB_tryModel.subjects" Width="1.5" PointX="0.75" PointY="4.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="DB_tryModel.users" Width="1.5" PointX="6" PointY="3.75" IsExpanded="true" />
+        <AssociationConnector Association="DB_tryModel.FK__schedule__classr__75A278F5" ManuallyRouted="false" />
+        <AssociationConnector Association="DB_tryModel.FK__schedule__descri__778AC167" ManuallyRouted="false" />
+        <AssociationConnector Association="DB_tryModel.FK__direction__facul__5070F446" ManuallyRouted="false" />
+        <AssociationConnector Association="DB_tryModel.FK__groups__directio__534D60F1" ManuallyRouted="false" />
+        <AssociationConnector Association="DB_tryModel.FK__schedule__group___72C60C4A" ManuallyRouted="false" />
+        <AssociationConnector Association="DB_tryModel.FK__journal__schedul__7E37BEF6" ManuallyRouted="false" />
+        <AssociationConnector Association="DB_tryModel.FK__journal__student__7F2BE32F" ManuallyRouted="false" />
+        <AssociationConnector Association="DB_tryModel.FK__schedule__time_s__76969D2E" ManuallyRouted="false" />
+        <AssociationConnector Association="DB_tryModel.FK__news__user_id__5EBF139D" ManuallyRouted="false" />
+        <AssociationConnector Association="DB_tryModel.FK__users__role_id__571DF1D5" ManuallyRouted="false" />
+        <AssociationConnector Association="DB_tryModel.FK__schedule__subjec__73BA3083" ManuallyRouted="false" />
+        <AssociationConnector Association="DB_tryModel.FK__schedule__teache__74AE54BC" ManuallyRouted="false" />
+        <AssociationConnector Association="DB_tryModel.student_groups" ManuallyRouted="false" />
+        <AssociationConnector Association="DB_tryModel.teacher_subjects" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>
