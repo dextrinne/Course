@@ -21,7 +21,12 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ApplicationDbContext>((serviceProvider, options) =>
 {
     var configuration = serviceProvider.GetRequiredService<IConfiguration>();
-    var connectionString = configuration.GetConnectionString("DefaultConnection");
+
+    // Railway даёт DATABASE_URL
+    var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+    var connectionString = !string.IsNullOrEmpty(databaseUrl)
+        ? ConvertRailwayUrl(databaseUrl)
+        : configuration.GetConnectionString("DefaultConnection");
 
     options.UseNpgsql(connectionString, npgsqlOptions =>
     {
@@ -78,3 +83,11 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+// Конвертер Railway DATABASE_URL
+string ConvertRailwayUrl(string url)
+{
+    var uri = new Uri(url);
+    var userInfo = uri.UserInfo.Split(':');
+    return $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Require;Trust Server Certificate=true";
+}
