@@ -38,10 +38,12 @@ builder.Services.AddDbContext<ApplicationDbContext>((serviceProvider, options) =
 });
 
 // CORS
+var frontendUrl = Environment.GetEnvironmentVariable("FRONTEND_URL") ?? "http://localhost:5173";
+
 var allowedOrigins = new[]
 {
     "http://localhost:5173",
-    "https://tracker-client.vercel.app"  // URL фронтенда
+    frontendUrl
 };
 
 builder.Services.AddCors(options =>
