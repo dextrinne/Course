@@ -1,0 +1,492 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Trebuchet MS', system-ui, -apple-system, sans-serif;
+    background: url('bg1.jpg') no-repeat center center fixed;
+    background-size: cover;
+    color: #f0f0f0;
+    line-height: 1.6;
+}
+
+#app {
+    min-height: 100vh;
+}
+
+/* Шапка */
+.header {
+    background: linear-gradient(135deg, #71A5DE 0%, #ffa6c1 100%);
+    color: white;
+    padding: 2rem;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(31, 150, 214, 0.4);
+}
+
+.header h1 {
+    font-size: 2rem;
+    margin-bottom: 0.25rem;
+}
+
+.subtitle {
+    opacity: 0.9;
+    font-size: 0.95rem;
+    max-width: 65rem;
+    margin: 0 auto;
+    text-align: justify;
+    hyphens: auto;
+    -webkit-hyphens: auto;
+    -ms-hyphens: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top: 1.5rem;
+}
+
+/* Блоки */
+.content {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.block {
+    background: rgba(110, 161, 215, 0.9);
+    border-radius: 5px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(255, 166, 193, 1);
+    width: 100%;
+}
+
+.block * {
+    color: inherit;
+}
+
+.block h2 {
+    margin-bottom: 1rem;
+    color: #f0f0f0;
+    text-shadow:
+        -1px -1px 0.7 #000,
+        1px -1px 0.7 #000,
+        -1px 1px 0.7 #000,
+        1px 1px 0.7 #000;
+    font-size: 1.25rem;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 0.5rem;
+}
+
+
+/* Стикеры */
+.date-picker {
+    margin-bottom: 1rem;
+}
+
+.date-input {
+    padding: 0.5rem 1rem;
+    border: 2px solid #f0f0f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    width: 100%;
+    color: #71A5DE;
+    background: white;
+}
+
+.date-input:focus {
+    outline: none;
+    border: 2px solid #ffa6c1;
+    border-radius: 8px;
+}
+
+.sticker {
+    padding: 2rem;
+    border-radius: 12px;
+    color: white;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+.sticker-green {
+    background: linear-gradient(135deg, #AAF683, #D0F4DE);
+    color: #4cd54f;
+}
+
+.sticker-yellow {
+    background: linear-gradient(135deg, #FFD670, #FCF6BD);
+    color: #ffb400;
+}
+
+.sticker-red {
+    background: linear-gradient(135deg, #EE6055, #FF9B85);
+    color: #e82617;
+}
+
+.sticker-text {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.sticker-amount {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-top: 0.5rem;
+}
+
+.warning {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 8px;
+    color: #856404;
+}
+
+/* Формы */
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #f0f0f0;
+}
+
+.form-group input,
+.form-group select {
+    padding: 0.5rem 1rem;
+    border: 2px solid #f0f0f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    width: 100%;
+    color: #71A5DE;
+    background: white;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border: 2px solid #ffa6c1;
+    border-radius: 8px;
+}
+
+.form-group select option,
+.form-group input::placeholder,
+.add-form input::placeholder {
+    color: #71A5DE;
+}
+
+.add-form {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(240, 240, 240, 0.3);
+    color: #71A5DE;
+}
+
+.add-form h3 {
+    margin-bottom: 0.75rem;
+    font-size: 1rem;
+    color: #f0f0f0;
+}
+
+.form-row {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.form-input {
+    flex: 1;
+    padding: 0.6rem;
+    border: 2px solid #f0f0f0;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    background: white;
+    color: #71A5DE;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #ffa6c1;
+}
+
+/* Кнопки */
+.btn {
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+    white-space: nowrap;
+}
+
+.btn-primary {
+    background: #FFA6C1;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #FF87AB;
+}
+
+.btn-outline {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid #FFA6C1;
+    color: #f0f0f0;
+}
+
+.btn-outline:hover {
+    background: #FFA6C1;
+    color: white;
+}
+
+.btn-full {
+    width: 100%;
+}
+
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+}
+
+.btn-danger {
+    background: #fc5c65;
+    color: white;
+    margin-left: 0.75rem;
+}
+
+.btn-danger:hover {
+    background: #eb3b5a;
+}
+
+
+/* Списки */
+.list-container {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* Стили для элементов списка внутри блоков */
+.list-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    border-bottom: 1px solid rgba(240, 240, 240, 0.3);
+    transition: background 0.2s;
+    color: #f0f0f0;
+}
+
+.list-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.inactive {
+    opacity: 0.5;
+}
+
+.list-item-info {
+    flex: 1;
+}
+
+.list-item-date {
+    font-size: 0.85rem;
+    color: rgba(240, 240, 240, 0.7);
+    margin-bottom: 0.25rem;
+}
+
+.list-item-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.list-item-amount {
+    font-weight: bold;
+    color: #f0f0f0;
+    text-shadow: 0 0 10px rgb(255, 166, 193);
+}
+
+.list-item-category {
+    font-size: 0.9rem;
+    color: rgba(240, 240, 240, 0.8);
+}
+
+.list-item-comment {
+    font-size: 0.85rem;
+    color: rgba(240, 240, 240, 0.7);
+    margin-top: 0.25rem;
+}
+
+.list-item-name {
+    font-weight: 500;
+    color: #f0f0f0;
+}
+
+.list-item-budget,
+.list-item-category-name {
+    font-size: 0.9rem;
+    color: rgba(240, 240, 240, 0.8);
+}
+
+.list-item-status {
+    margin-top: 0.25rem;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: rgba(240, 240, 240, 0.7);
+}
+
+.list-item select option,
+.list-item input::placeholder {
+    color: #71A5DE;
+}
+
+.list-item-actions {
+    display: flex;
+    gap: 0.25rem;
+    flex-shrink: 0;
+}
+
+.edit-buttons {
+    display: flex;
+    gap: 0.25rem;
+    margin-top: 0.25rem;
+}
+
+.edit-mode {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+}
+
+.edit-mode .form-input {
+    width: 200px; 
+}
+
+/* Переключатель */
+.toggle {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: #f0f0f0;
+}
+
+.toggle input {
+    display: none;
+}
+
+.toggle-slider {
+    width: 36px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    margin-right: 0.5rem;
+    position: relative;
+    transition: background 0.3s;
+}
+
+.toggle-slider::after {
+    content: '';
+    width: 16px;
+    height: 16px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    transition: transform 0.3s;
+}
+
+.toggle input:checked+.toggle-slider {
+    background: #FFA6C1;
+}
+
+.toggle input:checked+.toggle-slider::after {
+    transform: translateX(16px);
+}
+
+.filter-buttons {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    width: 100%;
+}
+
+.filter-buttons .btn {
+    flex: 1;
+    text-align: center;
+    justify-content: center;
+    min-width: 0;
+    padding: 0.6rem 0.5rem;
+    background: #FFA6C1;
+}
+
+.filter-buttons .btn:hover {
+    background: #ff5487;
+}
+
+.filter-buttons .btn-primary,
+.filter-buttons .btn-primary:hover {
+    background: #ff5487;
+    color: white;
+    box-shadow: 0 2px 8px rgba(255, 84, 135, 0.4);
+}
+
+.filter-controls {
+    margin-bottom: 1rem;
+}
+
+.month-selector {
+    margin-top: 0.5rem;
+}
+
+.month-input {
+    padding: 0.5rem 1rem;
+    border: 2px solid #f0f0f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    width: 100%;
+    color: #71A5DE;
+    background: white;
+}
+
+.month-input:focus {
+    outline: none;
+    border-color: #ffa6c1;
+}
+
+@media (max-width: 768px) {
+    .content {
+        padding: 1rem;
+    }
+
+    .header {
+        padding: 1.5rem 1rem;
+    }
+
+    .header h1 {
+        font-size: 1.5rem;
+    }
+
+    .form-row {
+        flex-direction: column;
+    }
+
+    .block-header {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .filter-buttons {
+        flex-wrap: wrap;
+    }
+}
