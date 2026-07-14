@@ -2,7 +2,7 @@
 builder = "nixpacks"
 
 [build.builders.nixpacks]
-buildCommand = "dotnet restore Tracker/TrackerBackend/TrackerBackend.csproj && dotnet publish tracker/TrackerBackend/TrackerBackend.csproj -c Release -o out"
+buildCommand = "dotnet restore Tracker/TrackerBackend/TrackerBackend.csproj && dotnet publish Tracker/TrackerBackend/TrackerBackend.csproj -c Release -o out"
 
 [deploy]
 startCommand = "dotnet out/TrackerBackend.dll"
