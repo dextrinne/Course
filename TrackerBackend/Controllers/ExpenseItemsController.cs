@@ -49,16 +49,14 @@ namespace TrackerBackend.Controllers
         }
 
         /// <summary>
-        /// Получает статью расхода по идентификатору
+        /// Получает статью расхода по ID
         /// </summary>
         /// <param name="id">ID статьи расхода</param>
         /// <returns>Статья расхода с информацией о категории</returns>
         [HttpGet("{id}", Name = "GetExpenseItemById")]
         public async Task<ActionResult<ExpenseItem>> GetById(int id)
         {
-            var item = await _context.ExpenseItems
-                .Include(e => e.Category)
-                .FirstOrDefaultAsync(e => e.Id == id);
+            var item = await FindExpenseItemByIdAsync(id);
 
             if (item == null)
                 return NotFound(new { message = $"Статья расхода с id={id} не найдена" });
@@ -74,19 +72,11 @@ namespace TrackerBackend.Controllers
         [HttpPost(Name = "CreateExpenseItem")]
         public async Task<ActionResult<ExpenseItem>> Create([FromBody] ExpenseItemDto dto)
         {
-            if (string.IsNullOrWhiteSpace(dto.Name))
-                return BadRequest(new { message = "Название статьи расхода обязательно" });
+            var validationResult = await ValidateExpenseItemDto(dto);
+            if (validationResult != null)
+                return validationResult;
 
-            if (dto.Name.Length > 100)
-                return BadRequest(new { message = "Название статьи не должно превышать 100 символов" });
-
-            var category = await _context.Categories.FindAsync(dto.CategoryId);
-            if (category == null)
-                return BadRequest(new { message = $"Категория с id={dto.CategoryId} не найдена" });
-
-            var exists = await _context.ExpenseItems
-                .AnyAsync(e => e.Name == dto.Name && e.CategoryId == dto.CategoryId);
-
+            var exists = await CheckExpenseItemNameExistsAsync(dto.Name, dto.CategoryId);
             if (exists)
                 return BadRequest(new { message = "Статья с таким названием уже существует в данной категории" });
 
@@ -114,9 +104,7 @@ namespace TrackerBackend.Controllers
         [HttpPut("{id}", Name = "UpdateExpenseItem")]
         public async Task<ActionResult<ExpenseItem>> Update(int id, [FromBody] ExpenseItemDto dto)
         {
-            var item = await _context.ExpenseItems
-                .Include(e => e.Category)
-                .FirstOrDefaultAsync(e => e.Id == id);
+            var item = await FindExpenseItemByIdAsync(id);
 
             if (item == null)
                 return NotFound(new { message = $"Статья расхода с id={id} не найдена" });
@@ -124,21 +112,11 @@ namespace TrackerBackend.Controllers
             if (!item.IsActive && !dto.IsActive)
                 return BadRequest(new { message = "Нельзя редактировать неактивную статью расхода. Сначала активируйте её." });
 
-            if (string.IsNullOrWhiteSpace(dto.Name))
-                return BadRequest(new { message = "Название статьи расхода обязательно" });
+            var validationResult = await ValidateExpenseItemDto(dto);
+            if (validationResult != null)
+                return validationResult;
 
-            if (dto.Name.Length > 100)
-                return BadRequest(new { message = "Название статьи не должно превышать 100 символов" });
-
-            var category = await _context.Categories.FindAsync(dto.CategoryId);
-            if (category == null)
-                return BadRequest(new { message = $"Категория с id={dto.CategoryId} не найдена" });
-
-            var exists = await _context.ExpenseItems
-                .AnyAsync(e => e.Name == dto.Name
-                            && e.CategoryId == dto.CategoryId
-                            && e.Id != id);
-
+            var exists = await CheckExpenseItemNameExistsAsync(dto.Name, dto.CategoryId, id);
             if (exists)
                 return BadRequest(new { message = "Статья с таким названием уже существует в данной категории" });
 
@@ -152,7 +130,7 @@ namespace TrackerBackend.Controllers
         }
 
         /// <summary>
-        /// Удаляет статью расхода по идентификатору
+        /// Удаляет статью расхода по ID
         /// </summary>
         /// <param name="id">ID статьи</param>
         /// <returns>Сообщение об удалении</returns>
@@ -180,6 +158,56 @@ namespace TrackerBackend.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(new { message = "Статья расхода успешно удалена" });
+        }
+
+        /// <summary>
+        /// Находит статью расхода по ID вместе с информацией о категории
+        /// </summary>
+        /// <param name="id">ID статьи расхода</param>
+        /// <returns>Статья расхода с включённой категорией или null, если не найдена</returns>
+        private async Task<ExpenseItem?> FindExpenseItemByIdAsync(int id)
+        {
+            return await _context.ExpenseItems
+                .Include(e => e.Category)
+                .FirstOrDefaultAsync(e => e.Id == id);
+        }
+
+        /// <summary>
+        /// Проверяет, существует ли в категории статья с указанным названием
+        /// </summary>
+        /// <param name="name">Название статьи расхода</param>
+        /// <param name="categoryId">ID категории</param>
+        /// <param name="excludeId">ID статьи, которую нужно исключить из проверки</param>
+        /// <returns>true, если статья с таким названием уже существует в категории - иначе false</returns>
+        private async Task<bool> CheckExpenseItemNameExistsAsync(string name, int categoryId, int? excludeId = null)
+        {
+            var query = _context.ExpenseItems
+                .Where(e => e.Name == name && e.CategoryId == categoryId);
+
+            if (excludeId.HasValue)
+                query = query.Where(e => e.Id != excludeId.Value);
+
+            return await query.AnyAsync();
+        }
+
+        /// <summary>
+        /// Валидирует данные статьи расхода (DTO) на корректность
+        /// </summary>
+        /// <param name="dto">Объект с данными статьи расхода для валидации</param>
+        /// <returns>BadRequest с описанием ошибки, если данные некорректны; null, если данные валидны</returns>
+        private async Task<ActionResult?> ValidateExpenseItemDto(ExpenseItemDto dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Name))
+                return BadRequest(new { message = "Название статьи расхода обязательно" });
+
+            if (dto.Name.Length > 100)
+                return BadRequest(new { message = "Название статьи не должно превышать 100 символов" });
+
+            var category = await _context.Categories.FindAsync(dto.CategoryId);
+            if (category == null)
+                return BadRequest(new { message = $"Категория с id={dto.CategoryId} не найдена" });
+
+            return null;
         }
     }
 

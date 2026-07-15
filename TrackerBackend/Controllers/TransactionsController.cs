@@ -14,6 +14,8 @@ namespace TrackerBackend.Controllers
     public class TransactionsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private const decimal DailyLimit = 1_000_000;
+        private const int MaxCommentLength = 200;
 
         public TransactionsController(ApplicationDbContext context)
         {
@@ -33,81 +35,37 @@ namespace TrackerBackend.Controllers
             [FromQuery] string? month = null,
             [FromQuery] int? year = null)
         {
-            var query = _context.Transactions
-                .Include(t => t.ExpenseItem)
-                    .ThenInclude(e => e.Category)
-                .AsQueryable();
+            var query = BuildTransactionQuery();
 
-            if (date.HasValue)
-            {
-                query = query.Where(t => t.Date.Date == date.Value.Date);
-            }
-            else if (!string.IsNullOrEmpty(month))
-            {
-                if (DateTime.TryParse(month + "-01", out var monthDate))
-                {
-                    var startOfMonth = new DateTime(monthDate.Year, monthDate.Month, 1);
-                    var endOfMonth = startOfMonth.AddMonths(1).AddDays(-1);
-                    query = query.Where(t => t.Date >= startOfMonth && t.Date <= endOfMonth);
-                }
-                else
-                {
-                    return BadRequest(new { message = "Неверный формат месяца. Используйте YYYY-MM" });
-                }
-            }
-            else if (year.HasValue)
-            {
-                query = query.Where(t => t.Date.Year == year.Value);
-            }
+            var filterResult = ApplyTransactionFilters(query, date, month, year);
+            if (filterResult is ActionResult actionResult)
+                return actionResult;
+
+            query = filterResult.Value;
 
             var transactions = await query
                 .OrderByDescending(t => t.Date)
                 .ThenByDescending(t => t.Id)
-                .Select(t => new TransactionResponse
-                {
-                    Id = t.Id,
-                    Date = t.Date,
-                    Amount = t.Amount,
-                    Comment = t.Comment,
-                    ExpenseItemId = t.ExpenseItemId,
-                    ExpenseItemName = t.ExpenseItem.Name,
-                    CategoryName = t.ExpenseItem.Category.Name,
-                    IsExpenseItemActive = t.ExpenseItem.IsActive
-                })
+                .Select(t => MapToTransactionResponse(t))
                 .ToListAsync();
 
             return Ok(transactions);
         }
 
         /// <summary>
-        /// Получает транзакцию по идентификатору
+        /// Получает транзакцию по ID
         /// </summary>
         /// <param name="id">ID транзакции</param>
         /// <returns>Транзакция с указанным ID</returns>
         [HttpGet("{id}", Name = "GetTransactionById")]
         public async Task<ActionResult<TransactionResponse>> GetById(int id)
         {
-            var transaction = await _context.Transactions
-                .Include(t => t.ExpenseItem)
-                    .ThenInclude(e => e.Category)
-                .FirstOrDefaultAsync(t => t.Id == id);
+            var transaction = await FindTransactionByIdAsync(id);
 
             if (transaction == null)
                 return NotFound(new { message = $"Транзакция с id={id} не найдена" });
 
-            var response = new TransactionResponse
-            {
-                Id = transaction.Id,
-                Date = transaction.Date,
-                Amount = transaction.Amount,
-                Comment = transaction.Comment,
-                ExpenseItemId = transaction.ExpenseItemId,
-                ExpenseItemName = transaction.ExpenseItem.Name,
-                CategoryName = transaction.ExpenseItem.Category.Name,
-                IsExpenseItemActive = transaction.ExpenseItem.IsActive
-            };
-
-            return Ok(response);
+            return Ok(MapToTransactionResponse(transaction));
         }
 
         /// <summary>
@@ -137,17 +95,7 @@ namespace TrackerBackend.Controllers
                 Date = date,
                 TotalAmount = totalAmount,
                 TransactionCount = dayTransactions.Count,
-                Transactions = dayTransactions.Select(t => new TransactionResponse
-                {
-                    Id = t.Id,
-                    Date = t.Date,
-                    Amount = t.Amount,
-                    Comment = t.Comment,
-                    ExpenseItemId = t.ExpenseItemId,
-                    ExpenseItemName = t.ExpenseItem?.Name,
-                    CategoryName = t.ExpenseItem?.Category?.Name,
-                    IsExpenseItemActive = t.ExpenseItem?.IsActive ?? false
-                }).ToList()
+                Transactions = dayTransactions.Select(MapToTransactionResponse).ToList()
             };
 
             return Ok(summary);
@@ -161,14 +109,9 @@ namespace TrackerBackend.Controllers
         [HttpPost(Name = "CreateTransaction")]
         public async Task<ActionResult<TransactionResponse>> Create([FromBody] TransactionRequest request)
         {
-            if (request.Amount <= 0)
-                return BadRequest(new { message = "Сумма транзакции должна быть положительной" });
-
-            if (request.Amount > 1_000_000)
-                return BadRequest(new { message = "Сумма одной транзакции не может превышать 1 000 000 рублей" });
-
-            if (request.Comment != null && request.Comment.Length > 200)
-                return BadRequest(new { message = "Комментарий не должен превышать 200 символов" });
+            var validationResult = await ValidateTransactionRequest(request);
+            if (validationResult != null)
+                return validationResult;
 
             var expenseItem = await _context.ExpenseItems
                 .Include(e => e.Category)
@@ -180,25 +123,9 @@ namespace TrackerBackend.Controllers
             if (!expenseItem.IsActive)
                 return BadRequest(new { message = "Нельзя создать транзакцию для неактивной статьи расхода" });
 
-            var dayStart = request.Date.Date;
-            var dayEnd = dayStart.AddDays(1);
-
-            var dailyTotal = await _context.Transactions
-                .Where(t => t.Date >= dayStart && t.Date < dayEnd)
-                .Where(t => t.ExpenseItem.IsActive)
-                .SumAsync(t => t.Amount);
-
-            if (dailyTotal + request.Amount > 1_000_000)
-            {
-                var remaining = 1_000_000 - dailyTotal;
-                return BadRequest(new
-                {
-                    message = $"Превышен суточный лимит трат. Доступно для ввода: {remaining:F2} руб.",
-                    dailyTotal = dailyTotal,
-                    dailyLimit = 1_000_000,
-                    remaining = remaining
-                });
-            }
+            var dailyLimitResult = await CheckDailyLimitAsync(request.Date, request.Amount);
+            if (dailyLimitResult != null)
+                return dailyLimitResult;
 
             var transaction = new Transaction
             {
@@ -214,19 +141,7 @@ namespace TrackerBackend.Controllers
             await _context.Entry(transaction).Reference(t => t.ExpenseItem).LoadAsync();
             await _context.Entry(transaction.ExpenseItem).Reference(e => e.Category).LoadAsync();
 
-            var response = new TransactionResponse
-            {
-                Id = transaction.Id,
-                Date = transaction.Date,
-                Amount = transaction.Amount,
-                Comment = transaction.Comment,
-                ExpenseItemId = transaction.ExpenseItemId,
-                ExpenseItemName = transaction.ExpenseItem.Name,
-                CategoryName = transaction.ExpenseItem.Category.Name,
-                IsExpenseItemActive = transaction.ExpenseItem.IsActive
-            };
-
-            return CreatedAtAction(nameof(GetById), new { id = transaction.Id }, response);
+            return CreatedAtAction(nameof(GetById), new { id = transaction.Id }, MapToTransactionResponse(transaction));
         }
 
         /// <summary>
@@ -238,64 +153,25 @@ namespace TrackerBackend.Controllers
         [HttpPut("{id}", Name = "UpdateTransaction")]
         public async Task<ActionResult<TransactionResponse>> Update(int id, [FromBody] TransactionRequest request)
         {
-            var transaction = await _context.Transactions
-                .Include(t => t.ExpenseItem)
-                    .ThenInclude(e => e.Category)
-                .FirstOrDefaultAsync(t => t.Id == id);
+            var transaction = await FindTransactionByIdAsync(id);
 
             if (transaction == null)
                 return NotFound(new { message = $"Транзакция с id={id} не найдена" });
 
-            if (request.Amount <= 0)
-                return BadRequest(new { message = "Сумма транзакции должна быть положительной" });
-
-            if (request.Amount > 1_000_000)
-                return BadRequest(new { message = "Сумма одной транзакции не может превышать 1 000 000 рублей" });
-
-            if (request.Comment != null && request.Comment.Length > 200)
-                return BadRequest(new { message = "Комментарий не должен превышать 200 символов" });
+            var validationResult = await ValidateTransactionRequest(request);
+            if (validationResult != null)
+                return validationResult;
 
             if (request.ExpenseItemId != transaction.ExpenseItemId)
             {
-                if (!transaction.ExpenseItem.IsActive)
-                {
-                    return BadRequest(new
-                    {
-                        message = "Нельзя изменить статью расхода, так как она стала неактивной " +
-                                 "после создания транзакции. Создайте новую транзакцию."
-                    });
-                }
-
-                var newExpenseItem = await _context.ExpenseItems.FindAsync(request.ExpenseItemId);
-                if (newExpenseItem == null)
-                    return BadRequest(new { message = $"Статья расхода с id={request.ExpenseItemId} не найдена" });
-
-                if (!newExpenseItem.IsActive)
-                    return BadRequest(new { message = "Нельзя выбрать неактивную статью расхода" });
-
-                transaction.ExpenseItemId = request.ExpenseItemId;
+                var changeItemResult = await ChangeExpenseItemAsync(transaction, request.ExpenseItemId);
+                if (changeItemResult != null)
+                    return changeItemResult;
             }
 
-            var dayStart = request.Date.Date;
-            var dayEnd = dayStart.AddDays(1);
-
-            // проверка дневного лимита при редактировании
-            var dailyTotalWithoutCurrent = await _context.Transactions
-                .Where(t => t.Date >= dayStart && t.Date < dayEnd && t.Id != id)
-                .Where(t => t.ExpenseItem.IsActive)
-                .SumAsync(t => t.Amount);
-
-            if (dailyTotalWithoutCurrent + request.Amount > 1_000_000)
-            {
-                var remaining = 1_000_000 - dailyTotalWithoutCurrent;
-                return BadRequest(new
-                {
-                    message = $"Превышен суточный лимит трат. Доступно для ввода: {remaining:F2} руб.",
-                    dailyTotal = dailyTotalWithoutCurrent,
-                    dailyLimit = 1_000_000,
-                    remaining = remaining
-                });
-            }
+            var dailyLimitResult = await CheckDailyLimitAsync(request.Date, request.Amount, id);
+            if (dailyLimitResult != null)
+                return dailyLimitResult;
 
             transaction.Date = request.Date.Date;
             transaction.Amount = request.Amount;
@@ -303,23 +179,11 @@ namespace TrackerBackend.Controllers
 
             await _context.SaveChangesAsync();
 
-            var response = new TransactionResponse
-            {
-                Id = transaction.Id,
-                Date = transaction.Date,
-                Amount = transaction.Amount,
-                Comment = transaction.Comment,
-                ExpenseItemId = transaction.ExpenseItemId,
-                ExpenseItemName = transaction.ExpenseItem.Name,
-                CategoryName = transaction.ExpenseItem.Category.Name,
-                IsExpenseItemActive = transaction.ExpenseItem.IsActive
-            };
-
-            return Ok(response);
+            return Ok(MapToTransactionResponse(transaction));
         }
 
         /// <summary>
-        /// Удаляет транзакцию по идентификатору
+        /// Удаляет транзакцию по ID
         /// </summary>
         /// <param name="id">ID транзакции</param>
         /// <returns>Сообщение об удалении</returns>
@@ -335,6 +199,172 @@ namespace TrackerBackend.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(new { message = "Транзакция успешно удалена" });
+        }
+
+        /// <summary>
+        /// Строит базовый запрос для получения транзакций с включёнными связанными данными
+        /// </summary>
+        private IQueryable<Transaction> BuildTransactionQuery()
+        {
+            return _context.Transactions
+                .Include(t => t.ExpenseItem)
+                    .ThenInclude(e => e.Category)
+                .AsQueryable();
+        }
+
+        /// <summary>
+        /// Применяет фильтры к запросу транзакций
+        /// </summary>
+        /// <param name="query">Исходный запрос транзакций</param>
+        /// <param name="date">Фильтр по дате</param>
+        /// <param name="month">Фильтр по месяцу в формате YYYY-MM</param>
+        /// <param name="year">Фильтр по году</param>
+        /// <returns>Отфильтрованный запрос или ошибка</returns>
+        private ActionResult<IQueryable<Transaction>> ApplyTransactionFilters(
+            IQueryable<Transaction> query,
+            DateTime? date,
+            string? month,
+            int? year)
+        {
+            if (date.HasValue)
+            {
+                query = query.Where(t => t.Date.Date == date.Value.Date);
+            }
+            else if (!string.IsNullOrEmpty(month))
+            {
+                if (DateTime.TryParse(month + "-01", out var monthDate))
+                {
+                    var startOfMonth = new DateTime(monthDate.Year, monthDate.Month, 1);
+                    var endOfMonth = startOfMonth.AddMonths(1).AddDays(-1);
+                    query = query.Where(t => t.Date >= startOfMonth && t.Date <= endOfMonth);
+                }
+                else
+                {
+                    return BadRequest(new { message = "Неверный формат месяца. Используйте YYYY-MM" });
+                }
+            }
+            else if (year.HasValue)
+            {
+                query = query.Where(t => t.Date.Year == year.Value);
+            }
+
+            return query;
+        }
+
+        /// <summary>
+        /// Находит транзакцию по ID с включёнными связанными данными
+        /// </summary>
+        /// <param name="id">ID транзакции</param>
+        /// <returns>Транзакция с ExpenseItem и Category</returns>
+        private async Task<Transaction?> FindTransactionByIdAsync(int id)
+        {
+            return await _context.Transactions
+                .Include(t => t.ExpenseItem)
+                    .ThenInclude(e => e.Category)
+                .FirstOrDefaultAsync(t => t.Id == id);
+        }
+
+        /// <summary>
+        /// Валидирует запрос транзакции
+        /// </summary>
+        /// <param name="request">Данные транзакции для проверки</param>
+        /// <returns>BadRequest с описанием ошибки</returns>
+        private async Task<ActionResult?> ValidateTransactionRequest(TransactionRequest request)
+        {
+            if (request.Amount <= 0)
+                return BadRequest(new { message = "Сумма транзакции должна быть положительной" });
+
+            if (request.Amount > DailyLimit)
+                return BadRequest(new { message = $"Сумма одной транзакции не может превышать {DailyLimit} рублей" });
+
+            if (request.Comment != null && request.Comment.Length > MaxCommentLength)
+                return BadRequest(new { message = $"Комментарий не должен превышать {MaxCommentLength} символов" });
+
+            return null;
+        }
+
+        /// <summary>
+        /// Проверяет дневной лимит трат
+        /// </summary>
+        /// <param name="date">Дата транзакции</param>
+        /// <param name="amount">Сумма новой транзакции</param>
+        /// <param name="excludeTransactionId">ID транзакции для исключения из расчёта (при обновлении)</param>
+        /// <returns>BadRequest при превышении лимита</returns>
+        private async Task<ActionResult?> CheckDailyLimitAsync(DateTime date, decimal amount, int? excludeTransactionId = null)
+        {
+            var dayStart = date.Date;
+            var dayEnd = dayStart.AddDays(1);
+
+            var dailyQuery = _context.Transactions
+                .Where(t => t.Date >= dayStart && t.Date < dayEnd)
+                .Where(t => t.ExpenseItem.IsActive);
+
+            if (excludeTransactionId.HasValue)
+                dailyQuery = dailyQuery.Where(t => t.Id != excludeTransactionId.Value);
+
+            var dailyTotal = await dailyQuery.SumAsync(t => t.Amount);
+
+            if (dailyTotal + amount > DailyLimit)
+            {
+                var remaining = DailyLimit - dailyTotal;
+                return BadRequest(new
+                {
+                    message = $"Превышен суточный лимит трат. Доступно для ввода: {remaining:F2} руб.",
+                    dailyTotal = dailyTotal,
+                    dailyLimit = DailyLimit,
+                    remaining = remaining
+                });
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Изменяет статью расхода для существующей транзакции
+        /// </summary>
+        /// <param name="transaction">Текущая транзакция</param>
+        /// <param name="newExpenseItemId">ID новой статьи расхода</param>
+        /// <returns>BadRequest при ошибке или null</returns>
+        private async Task<ActionResult?> ChangeExpenseItemAsync(Transaction transaction, int newExpenseItemId)
+        {
+            if (!transaction.ExpenseItem.IsActive)
+            {
+                return BadRequest(new
+                {
+                    message = "Нельзя изменить статью расхода, так как она стала неактивной " +
+                             "после создания транзакции. Создайте новую транзакцию."
+                });
+            }
+
+            var newExpenseItem = await _context.ExpenseItems.FindAsync(newExpenseItemId);
+            if (newExpenseItem == null)
+                return BadRequest(new { message = $"Статья расхода с id={newExpenseItemId} не найдена" });
+
+            if (!newExpenseItem.IsActive)
+                return BadRequest(new { message = "Нельзя выбрать неактивную статью расхода" });
+
+            transaction.ExpenseItemId = newExpenseItemId;
+            return null;
+        }
+
+        /// <summary>
+        /// Преобразует сущность Transaction в DTO
+        /// </summary>
+        /// <param name="transaction">Сущность транзакции</param>
+        /// <returns>DTO с данными транзакции</returns>
+        private static TransactionResponse MapToTransactionResponse(Transaction transaction)
+        {
+            return new TransactionResponse
+            {
+                Id = transaction.Id,
+                Date = transaction.Date,
+                Amount = transaction.Amount,
+                Comment = transaction.Comment,
+                ExpenseItemId = transaction.ExpenseItemId,
+                ExpenseItemName = transaction.ExpenseItem?.Name,
+                CategoryName = transaction.ExpenseItem?.Category?.Name,
+                IsExpenseItemActive = transaction.ExpenseItem?.IsActive ?? false
+            };
         }
     }
 
@@ -371,7 +401,7 @@ namespace TrackerBackend.Controllers
     public class TransactionResponse
     {
         /// <summary>
-        /// Идентификатор транзакции
+        /// ID транзакции
         /// </summary>
         public int Id { get; set; }
 
