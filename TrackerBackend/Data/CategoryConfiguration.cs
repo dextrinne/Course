@@ -42,7 +42,7 @@ namespace TrackerBackend.Data
                 .HasForeignKey(e => e.CategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            builder.HasIndex(e => e.Name)
+            builder.HasIndex(c => c.Name)
                 .IsUnique()
                 .HasDatabaseName("IX_Categories_Name");
         }
