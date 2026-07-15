@@ -25,6 +25,7 @@ namespace TrackerBackend.Data
             builder.Property(e => e.Name)
                 .IsRequired()
                 .HasMaxLength(100)
+                .HasColumnType("citext")
                 .HasColumnName("ItemName");
 
             builder.Property(e => e.IsActive)
