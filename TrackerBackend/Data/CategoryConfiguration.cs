@@ -25,6 +25,7 @@ namespace TrackerBackend.Data
             builder.Property(c => c.Name)
                 .IsRequired()
                 .HasMaxLength(100)
+                .HasColumnType("citext")
                 .HasColumnName("CategoryName");
 
             builder.Property(c => c.MonthlyBudget)
