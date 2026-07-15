@@ -40,6 +40,7 @@ namespace TrackerBackend.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+            modelBuilder.HasPostgresExtension("citext");
             base.OnModelCreating(modelBuilder);
         }
     }
