@@ -48,7 +48,7 @@ namespace TrackerBackend.Controllers
         [HttpGet("{id}", Name = "GetCategoryById")]
         public async Task<ActionResult<Category>> GetById(int id)
         {
-            var category = await FindCategoryByIdWithItemsAsync(id);
+            var category = await FindCategoryWithItems(id);
 
             if (category == null)
                 return NotFound(new { message = $"Категория с id={id} не найдена" });
@@ -64,11 +64,11 @@ namespace TrackerBackend.Controllers
         [HttpPost(Name = "CreateCategory")]
         public async Task<ActionResult<Category>> Create([FromBody] CategoryDto dto)
         {
-            var validationResult = await ValidateCategoryDtoAsync(dto);
+            var validationResult = ValidateCategory(dto);
             if (validationResult != null)
                 return validationResult;
 
-            var exists = await CheckCategoryNameExistsAsync(dto.Name);
+            var exists = await CategoryNameExists(dto.Name);
             if (exists)
                 return BadRequest(new { message = "Категория с таким названием уже существует" });
 
@@ -102,11 +102,11 @@ namespace TrackerBackend.Controllers
             if (!category.IsActive && !dto.IsActive)
                 return BadRequest(new { message = "Нельзя редактировать неактивную категорию. Сначала активируйте её." });
 
-            var validationResult = await ValidateCategoryDtoAsync(dto);
+            var validationResult = ValidateCategory(dto);
             if (validationResult != null)
                 return validationResult;
 
-            var exists = await CheckCategoryNameExistsAsync(dto.Name, id);
+            var exists = await CategoryNameExists(dto.Name, id);
             if (exists)
                 return BadRequest(new { message = "Категория с таким названием уже существует" });
 
@@ -127,7 +127,7 @@ namespace TrackerBackend.Controllers
         [HttpDelete("{id}", Name = "DeleteCategory")]
         public async Task<ActionResult> Delete(int id)
         {
-            var category = await FindCategoryByIdWithItemsAsync(id);
+            var category = await FindCategoryWithItems(id);
 
             if (category == null)
                 return NotFound(new { message = $"Категория с id={id} не найдена" });
@@ -152,8 +152,8 @@ namespace TrackerBackend.Controllers
         /// Находит категорию по ID вместе со связанными статьями расходов
         /// </summary>
         /// <param name="id">ID категории</param>
-        /// <returns>Категория с включёнными статьями расходов или null, если не найдена</returns>
-        private async Task<Category?> FindCategoryByIdWithItemsAsync(int id)
+        /// <returns>Категория с включёнными статьями расходов или null</returns>
+        private async Task<Category?> FindCategoryWithItems(int id)
         {
             return await _context.Categories
                 .Include(c => c.ExpenseItems)
@@ -164,9 +164,9 @@ namespace TrackerBackend.Controllers
         /// Проверяет, существует ли категория с указанным названием
         /// </summary>
         /// <param name="name">Название категории</param>
-        /// <param name="excludeId">ID категории, которую нужно исключить из проверки (например, при обновлении)</param>
-        /// <returns>true, если категория с таким названием уже существует - иначе false</returns>
-        private async Task<bool> CheckCategoryNameExistsAsync(string name, int? excludeId = null)
+        /// <param name="excludeId">ID категории для исключения из проверки</param>
+        /// <returns>true, если категория с таким названием уже существует</returns>
+        private async Task<bool> CategoryNameExists(string name, int? excludeId = null)
         {
             var query = _context.Categories
                 .Where(c => c.Name == name);
@@ -181,8 +181,8 @@ namespace TrackerBackend.Controllers
         /// Валидирует данные категории на корректность
         /// </summary>
         /// <param name="dto">Объект с данными категории для валидации</param>
-        /// <returns>BadRequest с описанием ошибки, если данные некорректны - null, если данные валидны</returns>
-        private async Task<ActionResult?> ValidateCategoryDtoAsync(CategoryDto dto)
+        /// <returns>BadRequest с описанием ошибки или null</returns>
+        private ActionResult? ValidateCategory(CategoryDto dto)
         {
             if (string.IsNullOrWhiteSpace(dto.Name))
                 return BadRequest(new { message = "Название категории обязательно" });
@@ -193,7 +193,7 @@ namespace TrackerBackend.Controllers
             if (dto.MonthlyBudget < 0)
                 return BadRequest(new { message = "Месячный бюджет не может быть отрицательным" });
 
-            return await Task.FromResult<ActionResult?>(null);
+            return null;
         }
     }
 

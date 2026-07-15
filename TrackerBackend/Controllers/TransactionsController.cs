@@ -58,7 +58,7 @@ namespace TrackerBackend.Controllers
         [HttpGet("{id}", Name = "GetTransactionById")]
         public async Task<ActionResult<TransactionResponse>> GetById(int id)
         {
-            var transaction = await FindTransactionByIdAsync(id);
+            var transaction = await FindTransaction(id);
 
             if (transaction == null)
                 return NotFound(new { message = $"Транзакция с id={id} не найдена" });
@@ -107,7 +107,7 @@ namespace TrackerBackend.Controllers
         [HttpPost(Name = "CreateTransaction")]
         public async Task<ActionResult<TransactionResponse>> Create([FromBody] TransactionRequest request)
         {
-            var validationResult = await ValidateTransactionRequest(request);
+            var validationResult = await ValidateTransaction(request);
             if (validationResult != null)
                 return validationResult;
 
@@ -121,7 +121,7 @@ namespace TrackerBackend.Controllers
             if (!expenseItem.IsActive)
                 return BadRequest(new { message = "Нельзя создать транзакцию для неактивной статьи расхода" });
 
-            var dailyLimitResult = await CheckDailyLimitAsync(request.Date, request.Amount);
+            var dailyLimitResult = await CheckDailyLimit(request.Date, request.Amount);
             if (dailyLimitResult != null)
                 return dailyLimitResult;
 
@@ -151,23 +151,23 @@ namespace TrackerBackend.Controllers
         [HttpPut("{id}", Name = "UpdateTransaction")]
         public async Task<ActionResult<TransactionResponse>> Update(int id, [FromBody] TransactionRequest request)
         {
-            var transaction = await FindTransactionByIdAsync(id);
+            var transaction = await FindTransaction(id);
 
             if (transaction == null)
                 return NotFound(new { message = $"Транзакция с id={id} не найдена" });
 
-            var validationResult = await ValidateTransactionRequest(request);
+            var validationResult = await ValidateTransaction(request);
             if (validationResult != null)
                 return validationResult;
 
             if (request.ExpenseItemId != transaction.ExpenseItemId)
             {
-                var changeItemResult = await ChangeExpenseItemAsync(transaction, request.ExpenseItemId);
+                var changeItemResult = await ChangeExpenseItem(transaction, request.ExpenseItemId);
                 if (changeItemResult != null)
                     return changeItemResult;
             }
 
-            var dailyLimitResult = await CheckDailyLimitAsync(request.Date, request.Amount, id);
+            var dailyLimitResult = await CheckDailyLimit(request.Date, request.Amount, id);
             if (dailyLimitResult != null)
                 return dailyLimitResult;
 
@@ -218,7 +218,7 @@ namespace TrackerBackend.Controllers
         /// <param name="month">Фильтр по месяцу в формате YYYY-MM</param>
         /// <param name="year">Фильтр по году</param>
         /// <returns>Отфильтрованный запрос или ошибка</returns>
-        private ActionResult ApplyTransactionFilters(
+        private ActionResult? ApplyTransactionFilters(
             ref IQueryable<Transaction> query,
             DateTime? date,
             string? month,
@@ -254,7 +254,7 @@ namespace TrackerBackend.Controllers
         /// </summary>
         /// <param name="id">ID транзакции</param>
         /// <returns>Транзакция с ExpenseItem и Category</returns>
-        private async Task<Transaction?> FindTransactionByIdAsync(int id)
+        private async Task<Transaction?> FindTransaction(int id)
         {
             return await _context.Transactions
                 .Include(t => t.ExpenseItem)
@@ -267,7 +267,7 @@ namespace TrackerBackend.Controllers
         /// </summary>
         /// <param name="request">Данные транзакции для проверки</param>
         /// <returns>BadRequest с описанием ошибки</returns>
-        private async Task<ActionResult?> ValidateTransactionRequest(TransactionRequest request)
+        private async Task<ActionResult?> ValidateTransaction(TransactionRequest request)
         {
             if (request.Amount <= 0)
                 return BadRequest(new { message = "Сумма транзакции должна быть положительной" });
@@ -288,7 +288,7 @@ namespace TrackerBackend.Controllers
         /// <param name="amount">Сумма новой транзакции</param>
         /// <param name="excludeTransactionId">ID транзакции для исключения из расчёта (при обновлении)</param>
         /// <returns>BadRequest при превышении лимита</returns>
-        private async Task<ActionResult?> CheckDailyLimitAsync(DateTime date, decimal amount, int? excludeTransactionId = null)
+        private async Task<ActionResult?> CheckDailyLimit(DateTime date, decimal amount, int? excludeTransactionId = null)
         {
             var dayStart = date.Date;
             var dayEnd = dayStart.AddDays(1);
@@ -323,7 +323,7 @@ namespace TrackerBackend.Controllers
         /// <param name="transaction">Текущая транзакция</param>
         /// <param name="newExpenseItemId">ID новой статьи расхода</param>
         /// <returns>BadRequest при ошибке или null</returns>
-        private async Task<ActionResult?> ChangeExpenseItemAsync(Transaction transaction, int newExpenseItemId)
+        private async Task<ActionResult?> ChangeExpenseItem(Transaction transaction, int newExpenseItemId)
         {
             if (!transaction.ExpenseItem.IsActive)
             {
