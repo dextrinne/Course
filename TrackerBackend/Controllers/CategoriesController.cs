@@ -76,7 +76,7 @@ namespace TrackerBackend.Controllers
                 return BadRequest(new { message = "Месячный бюджет не может быть отрицательным" });
 
             var exists = await _context.Categories
-                .AnyAsync(c => c.Name.Equals(dto.Name, StringComparison.OrdinalIgnoreCase));
+                .AnyAsync(c.Name == dto.Name);
 
             if (exists)
                 return BadRequest(new { message = "Категория с таким названием уже существует" });
@@ -121,7 +121,7 @@ namespace TrackerBackend.Controllers
                 return BadRequest(new { message = "Месячный бюджет не может быть отрицательным" });
 
             var exists = await _context.Categories
-                .AnyAsync(c => c.Name.Equals(dto.Name, StringComparison.OrdinalIgnoreCase) && c.Id != id);
+                .AnyAsync(c => c.Name == dto.Name && c.Id != id);
 
             if (exists)
                 return BadRequest(new { message = "Категория с таким названием уже существует" });
