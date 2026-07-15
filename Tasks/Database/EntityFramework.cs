@@ -5,11 +5,41 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Data.Entity;
 
-
 namespace Database
 {
+    /// <summary>
+    /// Класс подключения БД Entity Framework
+    /// </summary>
     internal class EntityFramework
     {
+        /// <summary>
+        /// Выполняет действие с контекстом БД и сохраняет изменения
+        /// </summary>
+        /// <param name="action">Действие которое надо выполнить</param>
+        private void ExecuteWithContext(Action<DB_tryEntities> action)
+        {
+            using (var context = new DB_tryEntities())
+            {
+                action(context);
+                context.SaveChanges();
+            }
+        }
+
+        /// <summary>
+        /// Находит нововсть по ID или выбрасывает исключение, если новость не найдена
+        /// </summary>
+        /// <param name="context">Контекст базы данных</param>
+        /// <param name="newsId">ID новости</param>
+        /// <returns></returns>
+        /// <exception cref="Exception">Новость не найдена</exception>
+        private news FindNewsOrThrow(DB_tryEntities context, int newsId)
+        {
+            var news = context.news.Find(newsId);
+            if (news == null)
+                throw new Exception("Новость не найдена!!!");
+            return news;
+        }
+
         /// <summary>
         /// Создаёт новую запись в таблице news
         /// </summary>
@@ -19,7 +49,7 @@ namespace Database
         /// <exception cref="InvalidOperationException"></exception>
         public Task CreateNews(string title, string text, int userId)
         {
-            using (var context = new DB_tryEntities())
+            ExecuteWithContext(context =>
             {
                 var user = context.users.Find(userId);
                 if (user == null)
@@ -33,9 +63,8 @@ namespace Database
                     publication_date = DateTime.Now
                 };
                 context.news.Add(news);
-                context.SaveChanges();
-                return Task.CompletedTask;
-            }
+            });
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -73,17 +102,13 @@ namespace Database
         /// <exception cref="Exception">Выбрасывается, если новость с указанным newsId не найдена в БД</exception>
         public Task UpdateNews(int newsId, string newTitle, string newText)
         {
-            using (var context = new DB_tryEntities())
+            ExecuteWithContext(context =>
             {
-                var news = context.news.Find(newsId);
-                if (news == null)
-                    throw new Exception("Новость не найдена!!!");
-
+                var news = FindNewsOrThrow(context, newsId);
                 news.news_title = newTitle;
                 news.news_text = newText;
-                context.SaveChanges();
-                return Task.CompletedTask;
-            }
+            });
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -93,16 +118,12 @@ namespace Database
         /// <exception cref="Exception">Выбрасывается при ошибках подключения к БД или нарушениях внешних ключей</exception>
         public Task DeleteNews(int newsId)
         {
-            using (var context = new DB_tryEntities())
+            ExecuteWithContext(context =>
             {
-                var news = context.news.Find(newsId);
-                if (news == null)
-                    throw new Exception("Новость не найдена!!!");
-
+                var news = FindNewsOrThrow(context, newsId);
                 context.news.Remove(news);
-                context.SaveChanges();
-                return Task.CompletedTask;
-            }
+            });
+            return Task.CompletedTask;
         }
     }
 

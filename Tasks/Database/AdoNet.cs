@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace Database
 {
+    /// <summary>
+    /// Класс подключения БД ADO.NET
+    /// </summary>
     public class AdoNet
     {
         private readonly string _connectionString;
@@ -18,6 +21,30 @@ namespace Database
         public AdoNet()
         {
             _connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=DB_try;Integrated Security=True;";
+        }
+
+        /// <summary>
+        /// Проверяет, что была затронута хотя бы одна строка в БД
+        /// </summary>
+        /// <param name="command">SQL-команда для выполнения</param>
+        /// <param name="errorMessage">Сообщение об ошибке</param>
+        /// <returns>Задача, представляющая асинхронную операцию</returns>
+        /// <exception cref="InvalidOperationException">Выбрасывается, если команда не затронула ни одной строки в БД</exception>
+        private async Task ExecuteNonQueryWithCheckAsync(SqlCommand command, string errorMessage)
+        {
+            int rowsAffected = await command.ExecuteNonQueryAsync();
+            if (rowsAffected == 0)
+                throw new InvalidOperationException(errorMessage);
+        }
+
+        /// <summary>
+        /// Создаёт и открывает подключение
+        /// </summary>
+        private async Task<SqlConnection> CreateAndOpenConnection()
+        {
+            var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
+            return connection;
         }
 
         /// <summary>
@@ -32,39 +59,35 @@ namespace Database
             const string insertNewsSql = @"INSERT INTO news (user_id, news_title, news_text, publication_date)
                                            VALUES (@UserId, @Title, @Text, GETDATE())";
 
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = await CreateAndOpenConnection())
+            using (var transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted))
             {
-                await connection.OpenAsync();
-                using (var transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted))
+                try
                 {
-                    try
+                    // существует ли пользователь
+                    using (var check = new SqlCommand(checkUserSql, connection, transaction))
                     {
-                        // существует ли пользователь
-                        using (var check = new SqlCommand(checkUserSql, connection, transaction))
-                        {
-                            check.Parameters.Add("@UserId", SqlDbType.Int).Value = userId;
-                            int count = (int)await check.ExecuteScalarAsync();
-                            if (count == 0)
-                                throw new InvalidOperationException($"Пользователь с ID {userId} не существует!!!");
-                        }
-
-                        // вставка
-                        using (var insert = new SqlCommand(insertNewsSql, connection, transaction))
-                        {
-                            insert.Parameters.Add("@UserId", SqlDbType.Int).Value = userId;
-                            insert.Parameters.Add("@Title", SqlDbType.NVarChar, 255).Value = title;
-                            insert.Parameters.Add("@Text", SqlDbType.NVarChar, -1).Value = text ?? (object)DBNull.Value;
-
-                            await insert.ExecuteNonQueryAsync();
-                        }
-
-                        transaction.Commit();
+                        check.Parameters.Add("@UserId", SqlDbType.Int).Value = userId;
+                        int count = (int)await check.ExecuteScalarAsync();
+                        if (count == 0)
+                            throw new InvalidOperationException($"Пользователь с ID {userId} не существует!!!");
                     }
-                    catch
+
+                    // вставка
+                    using (var insert = new SqlCommand(insertNewsSql, connection, transaction))
                     {
-                        transaction.Rollback();
-                        throw;
+                        insert.Parameters.Add("@UserId", SqlDbType.Int).Value = userId;
+                        insert.Parameters.Add("@Title", SqlDbType.NVarChar, 255).Value = title;
+                        insert.Parameters.Add("@Text", SqlDbType.NVarChar, -1).Value = text ?? (object)DBNull.Value;
+                        await insert.ExecuteNonQueryAsync();
                     }
+
+                    transaction.Commit();
+                }
+                catch
+                {
+                    transaction.Rollback();
+                    throw;
                 }
             }
         }
@@ -78,23 +101,20 @@ namespace Database
             var newsList = new List<NewsItem>();
             const string query = "SELECT news_id, user_id, news_title, news_text, publication_date FROM news ORDER BY publication_date DESC";
 
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = await CreateAndOpenConnection())
             using (var command = new SqlCommand(query, connection))
+            using (var read = await command.ExecuteReaderAsync())
             {
-                await connection.OpenAsync();
-                using (var read = await command.ExecuteReaderAsync())
+                while (await read.ReadAsync())
                 {
-                    while (await read.ReadAsync())
+                    newsList.Add(new NewsItem
                     {
-                        newsList.Add(new NewsItem
-                        {
-                            NewsId = read.GetInt32(0),
-                            UserId = read.GetInt32(1),
-                            Title = read.GetString(2),
-                            Text = read.IsDBNull(3) ? null : read.GetString(3),
-                            PublicationDate = read.GetDateTime(4)
-                        });
-                    }
+                        NewsId = read.GetInt32(0),
+                        UserId = read.GetInt32(1),
+                        Title = read.GetString(2),
+                        Text = read.IsDBNull(3) ? null : read.GetString(3),
+                        PublicationDate = read.GetDateTime(4)
+                    });
                 }
             }
             return newsList;
@@ -110,17 +130,14 @@ namespace Database
         public async Task UpdateNews(int newsId, string newTitle, string newText)
         {
             const string query = "UPDATE news SET news_title = @Title, news_text = @Text WHERE news_id = @Id";
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = await CreateAndOpenConnection())
             using (var command = new SqlCommand(query, connection))
             {
                 command.Parameters.Add("@Title", SqlDbType.NVarChar, 255).Value = newTitle;
                 command.Parameters.Add("@Text", SqlDbType.NVarChar, -1).Value = newText ?? (object)DBNull.Value;
                 command.Parameters.Add("@Id", SqlDbType.Int).Value = newsId;
 
-                await connection.OpenAsync();
-                int row = await command.ExecuteNonQueryAsync();
-                if (row == 0)
-                    throw new Exception("Новость с указанным ID не найдена!!!");
+                await ExecuteNonQueryWithCheckAsync(command, "Новость с указанным ID не найдена!!!");
             }
         }
 
@@ -132,14 +149,12 @@ namespace Database
         public async Task DeleteNews(int newsId)
         {
             const string query = "DELETE FROM news WHERE news_id = @Id";
-            using (var connection = new SqlConnection(_connectionString))
+
+            using (var connection = await CreateAndOpenConnection())
             using (var command = new SqlCommand(query, connection))
             {
                 command.Parameters.Add("@Id", SqlDbType.Int).Value = newsId;
-                await connection.OpenAsync();
-                int row = await command.ExecuteNonQueryAsync();
-                if (row == 0)
-                    throw new Exception("Новость с указанным ID не найдена!!!");
+                await ExecuteNonQueryWithCheckAsync(command, "Новость с указанным ID не найдена!!!");
             }
         }
     }
