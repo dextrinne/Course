@@ -1,3 +1,11 @@
+## Структура заданий в папке Tasks
+
+- CompoundInterest - Типы данных: Задание 1
+- Database - Работа с БД из кода
+- Diamond - Типы данных: Задание 2
+- Rectangle - ООП: Тема 1
+- SmartStack - Коллекции
+
 ## Ссылки
 
 - Фронтенд: https://trackerclient-production.up.railway.app
