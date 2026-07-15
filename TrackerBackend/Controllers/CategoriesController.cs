@@ -76,7 +76,7 @@ namespace TrackerBackend.Controllers
                 return BadRequest(new { message = "Месячный бюджет не может быть отрицательным" });
 
             var exists = await _context.Categories
-                .AnyAsync(c.Name == dto.Name);
+                .AnyAsync(c => c.Name == dto.Name);
 
             if (exists)
                 return BadRequest(new { message = "Категория с таким названием уже существует" });
