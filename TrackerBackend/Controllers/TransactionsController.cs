@@ -37,11 +37,9 @@ namespace TrackerBackend.Controllers
         {
             var query = BuildTransactionQuery();
 
-            var filterResult = ApplyTransactionFilters(query, date, month, year);
-            if (filterResult is ActionResult actionResult)
-                return actionResult;
-
-            query = filterResult.Value;
+            var filterResult = ApplyTransactionFilters(ref query, date, month, year);
+            if (filterResult != null)
+                return filterResult;
 
             var transactions = await query
                 .OrderByDescending(t => t.Date)
@@ -220,8 +218,8 @@ namespace TrackerBackend.Controllers
         /// <param name="month">Фильтр по месяцу в формате YYYY-MM</param>
         /// <param name="year">Фильтр по году</param>
         /// <returns>Отфильтрованный запрос или ошибка</returns>
-        private ActionResult<IQueryable<Transaction>> ApplyTransactionFilters(
-            IQueryable<Transaction> query,
+        private ActionResult ApplyTransactionFilters(
+            ref IQueryable<Transaction> query,
             DateTime? date,
             string? month,
             int? year)
@@ -248,8 +246,8 @@ namespace TrackerBackend.Controllers
                 query = query.Where(t => t.Date.Year == year.Value);
             }
 
-            return query;
-        }
+            return null;
+        }       
 
         /// <summary>
         /// Находит транзакцию по ID с включёнными связанными данными
