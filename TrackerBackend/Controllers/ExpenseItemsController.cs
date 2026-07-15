@@ -85,7 +85,7 @@ namespace TrackerBackend.Controllers
                 return BadRequest(new { message = $"Категория с id={dto.CategoryId} не найдена" });
 
             var exists = await _context.ExpenseItems
-                .AnyAsync(e => e.Name.Equals(dto.Name, StringComparison.OrdinalIgnoreCase) && e.CategoryId == dto.CategoryId);
+                .AnyAsync(e => e.Name == dto.Name && e.CategoryId == dto.CategoryId);
 
             if (exists)
                 return BadRequest(new { message = "Статья с таким названием уже существует в данной категории" });
@@ -135,7 +135,7 @@ namespace TrackerBackend.Controllers
                 return BadRequest(new { message = $"Категория с id={dto.CategoryId} не найдена" });
 
             var exists = await _context.ExpenseItems
-                .AnyAsync(e => e.Name.Equals(dto.Name, StringComparison.OrdinalIgnoreCase)
+                .AnyAsync(e => e.Name == dto.Name
                             && e.CategoryId == dto.CategoryId
                             && e.Id != id);
 
