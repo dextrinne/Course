@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace SmartStack
 {
+    /// <summary>
+    /// Главный класс для работы программы
+    /// </summary>
     internal class Program
     {
         static void Main(string[] args)

@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Rectangle
 {
+    /// <summary>
+    /// Главный класс для работы программы
+    /// </summary>
     internal class Program
     {
         static void Main(string[] args)

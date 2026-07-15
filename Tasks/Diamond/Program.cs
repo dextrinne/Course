@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Diamond
 {
+    /// <summary>
+    /// Главный класс для работы программы
+    /// </summary>
     internal class Program
     {
         /// <summary>

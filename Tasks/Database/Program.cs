@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Database
 {
+    /// <summary>
+    /// Главный класс для работы программы
+    /// </summary>
     internal class Program
     {
         static async Task Main(string[] args)
